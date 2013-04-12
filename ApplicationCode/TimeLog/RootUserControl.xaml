@@ -1,0 +1,42 @@
+﻿<UserControl x:Class="TimeLog.RootUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="350" d:DesignWidth="600">
+
+
+  <UserControl.DataContext>
+    <Binding Path="Main" Source="{StaticResource Locator}"/>
+  </UserControl.DataContext>
+
+  <UserControl.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colours.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Orange.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseDark.xaml" />
+        <ResourceDictionary Source="TimeLogResources.xaml"/>
+
+      </ResourceDictionary.MergedDictionaries>
+      <!--<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedTabControl.xaml" />-->
+    </ResourceDictionary>
+  </UserControl.Resources>
+
+  <Grid>
+
+    <Rectangle VerticalAlignment="Stretch" HorizontalAlignment="Left" Width="195" Fill="{DynamicResource AccentColorBrush}"/>
+
+    <Border Background="{DynamicResource AccentColorBrush}" Width="195" HorizontalAlignment="Left" VerticalAlignment="Top" Height="35">
+      <TextBlock Text="TIME LOG" Foreground="{DynamicResource ForegroundBrush}" IsHitTestVisible="False" FontSize="16" Margin="5,0,0,0" VerticalAlignment="Center"/>
+    </Border>
+
+    <ContentControl Content="{Binding CurrentLog}"/>
+    <!--ContentTemplate="{DynamicResource LogViewModelDataTemplate}"-->
+
+    <!--<ContentPresenter Content="{Binding}"/>-->
+  </Grid>
+</UserControl>
