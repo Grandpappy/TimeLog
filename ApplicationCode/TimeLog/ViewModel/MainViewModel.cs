@@ -29,9 +29,11 @@ namespace TimeLog.ViewModel
 
     public SettingsViewModel Settings { get; private set; }
     public LogListingViewModel LogListing { get; private set; }
+    public TimeSummaryViewModel Summary { get; private set; }
     private Timer DateChangeTimer { get; set; }
     private DateTime LastKnownDate { get; set; }
     public event EventHandler QueryUserToChangeToCurrentLog;
+    public ICommand GenerateLogSummaryForCurrentLogCommand { get; private set; }
 
 
     
@@ -41,8 +43,10 @@ namespace TimeLog.ViewModel
       this.Settings.PropertyChanged += Settings_PropertyChanged;
       this.LastKnownDate = DateTime.Now.Date;
       this.DateChangeTimer = new Timer(HandleDateChangeTimerChange, null, 1000, 1000);
+      this.GenerateLogSummaryForCurrentLogCommand = new RelayCommand<LogViewModel>(GenerateLogSummaryForCurrentLogCommand_Execute);
 
       this.LogListing = new LogListingViewModel(this.Settings);
+      this.Summary = new TimeSummaryViewModel();
 
       if (!IsInDesignMode)
       {
@@ -54,6 +58,16 @@ namespace TimeLog.ViewModel
       }
 
       this.MessengerInstance.Register<LoadLogMessage>(this, HandleLoadLogMessage);
+    }
+
+
+
+    private void GenerateLogSummaryForCurrentLogCommand_Execute(LogViewModel logToGenerate)
+    {
+      if (logToGenerate == null)
+        return;
+
+      this.MessengerInstance.Send<GenerateTimeSummaryMessage>(new GenerateTimeSummaryMessage(logToGenerate));
     }
 
 
@@ -91,6 +105,7 @@ namespace TimeLog.ViewModel
     private void HandleLoadLogMessage(LoadLogMessage message)
     {
       this.CurrentLog = LogViewModel.LoadByFileName(message.LogToLoad.FileName, message.LogToLoad.Date, this.Settings);
+      this.MessengerInstance.Send<GenerateTimeSummaryMessage>(new GenerateTimeSummaryMessage(this.CurrentLog));
     }
 
 

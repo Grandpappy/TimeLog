@@ -127,18 +127,26 @@
 
     <Controls:Flyout
       x:Name="DaySummaryFlyout"
-      Header="Time Log"
+      Header="Time Summary"
       Position="Left"
       Background="{DynamicResource FlyoutBackgroundBrush}" 
+      DataContext="{Binding Summary}"
       >
+
+      <Grid Margin="1,0" Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType={x:Type Controls:Flyout}}}"  Width="300">
+        <ScrollViewer Margin="0,0,0,60" Padding="0,0,5,0" VerticalScrollBarVisibility="Auto">
+          <ItemsControl ItemsSource="{Binding SummaryLineItems}" Margin="5,0" Style="{DynamicResource SummaryItemsControlStyle}"/>
+        </ScrollViewer>
+      </Grid>
+
     </Controls:Flyout>
   </Controls:MetroWindow.Flyouts>
 
 
   <Controls:MetroWindow.WindowCommands>
     <Controls:WindowCommands>
-      
-      <Button ToolTip="View timesheet info" Click="OpenTimesheetInfo_Click">
+
+      <Button ToolTip="View timesheet summary" Click="OpenTimesheetSummary_Click" Command="{Binding GenerateLogSummaryForCurrentLogCommand}" CommandParameter="{Binding CurrentLog}">
         <Rectangle Width="17" Height="20">
           <Rectangle.Fill>
             <VisualBrush Stretch="Fill" Visual="{StaticResource CalculateLogIcon}" />

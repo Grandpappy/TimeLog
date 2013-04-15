@@ -95,6 +95,38 @@ namespace TimeLog.ViewModel
       }
     }
 
+    public string TaskIdentifier
+    {
+      get
+      {
+        if (string.IsNullOrWhiteSpace(this.Label))
+        {
+          return null;
+        }
+
+        var value = this.Label.Trim().Split(' ').FirstOrDefault();
+        if (value != null)
+        {
+          return value.ToTitleCase();
+        }
+
+        return null;
+      }
+    }
+
+    public string Comment
+    {
+      get
+      {
+        if (string.IsNullOrWhiteSpace(this.Label))
+        {
+          return null;
+        }
+
+        return this.Label.Trim().Remove(0, this.TaskIdentifier.Length);
+      }
+    }
+
 
 
     public ICommand DeleteEntryCommand { get; private set; }

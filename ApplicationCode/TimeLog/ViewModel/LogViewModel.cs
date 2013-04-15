@@ -130,6 +130,7 @@ namespace TimeLog.ViewModel
         return;
 
       this.WriteToFileAsync();
+      //this.MessengerInstance.Send<GenerateTimeSummaryMessage>(new GenerateTimeSummaryMessage(this));
     }
 
 

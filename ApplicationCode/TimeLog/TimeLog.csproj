@@ -94,6 +94,7 @@
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\SettingsViewModel.cs" />
     <Compile Include="ViewModel\TimeEntryViewModel.cs" />
+    <Compile Include="ViewModel\TimeSummaryViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Page Include="DesignTimeResources.xaml">
       <Generator>MSBuild:Compile</Generator>

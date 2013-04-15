@@ -235,9 +235,9 @@ namespace TimeLog
 
 
 
-    private void OpenTimesheetInfo_Click(object sender, RoutedEventArgs e)
+    private void OpenTimesheetSummary_Click(object sender, RoutedEventArgs e)
     {
-
+      this.DaySummaryFlyout.IsOpen = true;
     }
 
 
