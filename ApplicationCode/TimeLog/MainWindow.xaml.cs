@@ -26,16 +26,16 @@ namespace TimeLog
   {
     private MainViewModel ViewModel { get; set; }
 
-    //private string _ModalText;
-    //public string ModalText 
-    //{
-    //  get { return _ModalText; }
-    //  set
-    //  {
-    //    _ModalText = value;
-    //    RaiseProperyChanged("ModalText");
-    //  }
-    //}
+    private int _IdleTimeInMinutes;
+    public int IdleTimeInMinutes
+    {
+      get { return _IdleTimeInMinutes; }
+      set
+      {
+        _IdleTimeInMinutes = value;
+        RaiseProperyChanged("IdleTimeInMinutes");
+      }
+    }
 
 
     public MainWindow()
@@ -76,9 +76,25 @@ namespace TimeLog
       this.ViewModel = e.NewValue as MainViewModel;
       this.ViewModel.Settings.PropertyChanged += Settings_PropertyChanged;
       this.ViewModel.QueryUserToChangeToCurrentLog += ViewModel_QueryUserToChangeToNewLog;
+      this.ViewModel.QueryUserAboutBeingIdle += ViewModel_QueryUserAboutBeingIdle;
 
       UpdateTheme();
       UpdateAccentColor();
+    }
+
+
+
+    private void ViewModel_QueryUserAboutBeingIdle(object sender, TimeSpan e)
+    {
+      UIThread.Run(() =>
+        {
+          this.Activate();
+
+          this.IdleQueryTransionContentControl.Content = this.Resources["IdleQueryContent"];
+
+          this.IdleTimeInMinutes = (int)e.TotalMinutes;
+          VisualStateManager.GoToElementState(this.RootVisual, "ShowIdleUserModal", true);
+        });
     }
 
 
@@ -227,6 +243,13 @@ namespace TimeLog
 
     private void Click_No(object sender, RoutedEventArgs e)
     {
+      CloseModalDialogs();
+    }
+
+
+
+    private void CloseModalDialogs()
+    {
       UIThread.Run(() =>
         {
           VisualStateManager.GoToElementState(this.RootVisual, "NoModal", true);
@@ -241,5 +264,102 @@ namespace TimeLog
     }
 
 
+
+    private void Click_IdleQuery_EnterMissingInformation(object sender, RoutedEventArgs e)
+    {
+      UIThread.Run(()=>
+        {
+          var queryAnswerContent = this.Resources["IdleAnswerTimesContent"] as FrameworkElement;
+          //var beforeIdleAnswerTextBox = UIHelper.FindChild<TextBox>(queryAnswerContent, "BeforeIdleLabelTextBox");
+          //beforeIdleAnswerTextBox.Focus();
+
+          this.IdleQueryTransionContentControl.Content = queryAnswerContent;
+        });
+    }
+
+
+
+    private void Click_IdleQuery_Ignore(object sender, RoutedEventArgs e)
+    {
+      CloseModalDialogs();
+
+      UIThread.Run(() =>
+      {
+        this.IdleQueryTransionContentControl.Content = this.Resources["IdleQueryContent"];
+        this.ViewModel.ResetIdle();
+      });
+    }
+
+
+    private void Click_IdleQuery_EnterMissingEntries(object sender, RoutedEventArgs e)
+    {
+      CloseModalDialogs();
+
+      UIThread.Run(() =>
+      {
+        var queryAnswerContent = this.Resources["IdleAnswerTimesContent"] as FrameworkElement;
+        var beforeIdleAnswerTextBox = UIHelper.FindChild<TextBox>(queryAnswerContent, "BeforeIdleLabelTextBox");
+        var whileIdleAnswerTextBox = UIHelper.FindChild<TextBox>(queryAnswerContent, "WhileIdleLabelTextBox");
+
+        this.ViewModel.AddIdleEntriesToCurrentLog(beforeIdleAnswerTextBox.Text, whileIdleAnswerTextBox.Text);
+
+        this.IdleQueryTransionContentControl.Content = this.Resources["IdleQueryContent"];
+        this.ViewModel.ResetIdle();
+
+        beforeIdleAnswerTextBox.Text = null;
+        whileIdleAnswerTextBox.Text = null;
+      });
+    }
+
+
   }
+
+
+  public static class UIHelper
+  {
+    public static T FindChild<T>(DependencyObject parent, string childName)
+      where T : DependencyObject
+    {    
+      // Confirm parent and childName are valid. 
+      if (parent == null) return null;
+
+      T foundChild = null;
+
+      int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
+      for (int i = 0; i < childrenCount; i++)
+      {
+        var child = VisualTreeHelper.GetChild(parent, i);
+        // If the child is not of the request child type child
+        T childType = child as T;
+        if (childType == null)
+        {
+          // recursively drill down the tree
+          //foundChild = FindChild<T>(child, childName);
+
+          // If the child is found, break so we do not overwrite the found child. 
+          if (foundChild != null) break;
+        }
+        else if (!string.IsNullOrEmpty(childName))
+        {
+          var frameworkElement = child as FrameworkElement;
+          // If the child's name is set for search
+          if (frameworkElement != null && frameworkElement.Name == childName)
+          {
+            // if the child's name is of the request name
+            foundChild = (T)child;
+            break;
+          }
+        }
+        else
+        {
+          // child element found.
+          foundChild = (T)child;
+          break;
+        }
+      }
+
+      return foundChild;
+    }
+  }
+
 }

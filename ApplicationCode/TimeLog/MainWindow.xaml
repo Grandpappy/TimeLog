@@ -30,6 +30,98 @@
         <!--<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedTabControl.xaml" />-->
       </ResourceDictionary.MergedDictionaries>
       <!--<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.AnimatedTabControl.xaml" />-->
+
+      <Style x:Key="ModalTitleText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="Foreground" Value="Black"/>
+      </Style>
+
+
+      <Grid x:Key="IdleQueryContent">
+        <Grid.RowDefinitions>
+          <RowDefinition/>
+          <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,10" Style="{StaticResource ModalTitleText}">
+          <Run Text="You have been idle for"/>
+          <Run Text="{Binding IdleTimeInMinutes, ElementName=ControlRoot}"/>
+          <Run Text="minutes.  What do you want to do?"/>
+        </TextBlock>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+          <Button Content="Enter missing information" HorizontalAlignment="Right" d:LayoutOverrides="Height" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,10,0" Padding="10,0" Click="Click_IdleQuery_EnterMissingInformation"/>
+          <Button Content="Ignore" Grid.Column="1" HorizontalAlignment="Left" d:LayoutOverrides="Height" Grid.Row="1" VerticalAlignment="Center" Margin="10,0,0,0" Padding="10,0" Click="Click_IdleQuery_Ignore"/>
+        </StackPanel>
+      </Grid>
+
+      <Grid x:Key="IdleAnswerTimesContent" Margin="50,0">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition/>
+          <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock 
+          Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+          Text="Enter what you were doing when you went idle" 
+          Style="{StaticResource ModalTitleText}"
+          Margin="30,0,30,10"
+          />
+
+        <!--<TextBlock 
+          Grid.Row="1" Grid.Column="0"
+          Text="Before being idle" 
+          Style="{StaticResource ModalTitleText}"
+          Margin="0,0,10,10"
+          />
+
+        <TextBlock 
+          Grid.Row="1" Grid.Column="1"
+          Text="While idle" 
+          Style="{StaticResource ModalTitleText}"
+          Margin="10,0,0,10"
+          />-->
+
+        <TextBox 
+          x:Name="BeforeIdleLabelTextBox" 
+          Grid.Row="2" Grid.Column="0"
+          AcceptsReturn="False"
+          HorizontalAlignment="Stretch" 
+          VerticalAlignment="Center" 
+          Margin="0,0,10,0" 
+          FontFamily="Segoe UI" 
+          FontSize="20" 
+          Controls:TextboxHelper.Watermark="Before being idle" 
+          />
+
+        <TextBox 
+          x:Name="WhileIdleLabelTextBox" 
+          Grid.Row="2" Grid.Column="1"
+          AcceptsReturn="False"
+          HorizontalAlignment="Stretch" 
+          VerticalAlignment="Center" 
+          Margin="10,0,0,0" 
+          FontFamily="Segoe UI" 
+          FontSize="20" 
+          Controls:TextboxHelper.Watermark="While idle" 
+          />
+
+        <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+          <Button Grid.Row="3" Grid.Column="0" Content="Create entries" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" Padding="10,0" Click="Click_IdleQuery_EnterMissingEntries"/>
+          <Button Grid.Row="3" Grid.Column="1" Content="Cancel" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" Padding="10,0" Click="Click_IdleQuery_Ignore"/>
+        </StackPanel>
+
+
+      </Grid>
+
     </ResourceDictionary>
   </Controls:MetroWindow.Resources>
 
@@ -90,6 +182,8 @@
       <Grid Margin="0" Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType={x:Type Controls:Flyout}}}">
         <ScrollViewer Margin="0,0,0,60" Padding="0,0,5,0" VerticalScrollBarVisibility="Auto">
           <StackPanel Orientation="Vertical">
+            <Controls:ToggleSwitch x:Name="QueryWhenIdleToggle" Header="Ask about being idle" OnLabel="Yes" OffLabel="No" IsChecked="{Binding QueryWhenIdle}"/>
+            
             <Controls:ToggleSwitch x:Name="SettingThemeToggle" Header="Theme" OnLabel="Dark" OffLabel="Light" IsChecked="{Binding UseDarkTheme}"/>
 
             <StackPanel Orientation="Vertical" Margin="12,10,0,5">
@@ -180,6 +274,7 @@
   	<VisualStateManager.VisualStateGroups>
   		<VisualStateGroup x:Name="MessageBoxVisualGroup">
   			<VisualState x:Name="NoModal"/>
+        
   			<VisualState x:Name="ShowDayChangeModal">
   				<Storyboard>
   					<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="FadedBackground">
@@ -190,7 +285,19 @@
   					</ObjectAnimationUsingKeyFrames>
   				</Storyboard>
   			</VisualState>
-  		</VisualStateGroup>
+
+        <VisualState x:Name="ShowIdleUserModal">
+          <Storyboard>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="FadedBackground">
+              <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}"/>
+            </ObjectAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="QueryUserIdleModal">
+              <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}"/>
+            </ObjectAnimationUsingKeyFrames>
+          </Storyboard>
+        </VisualState>
+
+      </VisualStateGroup>
   	</VisualStateManager.VisualStateGroups>
 
 
@@ -200,10 +307,12 @@
     
     <Border Background="{DynamicResource AccentColorBrush}" Width="195" HorizontalAlignment="Left" VerticalAlignment="Top" Height="35">
       <TextBlock Text="TIME LOG" Foreground="{DynamicResource ForegroundBrush}" IsHitTestVisible="False" FontSize="16" Margin="5,0,0,0" VerticalAlignment="Center"/>
+      <!--<TextBlock Text="{Binding IdleCounter.IdleTime}" Foreground="{DynamicResource ForegroundBrush}" IsHitTestVisible="False" FontSize="16" Margin="5,0,0,0" VerticalAlignment="Center"/>-->
     </Border>
     
     <Border x:Name="FadedBackground" BorderThickness="1" Background="Black" Opacity="0.5" Visibility="Hidden"/>
-    <Border x:Name="QueryLoadNextDayModal" BorderThickness="1" Background="White" VerticalAlignment="Center" Height="100" Margin="1,0" Visibility="Hidden">
+
+    <Border x:Name="QueryLoadNextDayModal" BorderThickness="1" Background="White" VerticalAlignment="Center" Margin="1,0" Padding="0,20" Visibility="Hidden">
     	<Grid>
     		<Grid.RowDefinitions>
     			<RowDefinition/>
@@ -213,16 +322,24 @@
     			<ColumnDefinition/>
     			<ColumnDefinition/>
     		</Grid.ColumnDefinitions>
-        <TextBlock TextWrapping="Wrap" Text="The date has changed.  Do you wish to load today's log?" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" Foreground="Black" Grid.ColumnSpan="2"/>
+        <TextBlock TextWrapping="Wrap" Text="The date has changed.  Do you wish to load today's log?" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" Foreground="Black" Grid.ColumnSpan="2" Margin="0,0,0,10"/>
     		<Button Content="Yes" HorizontalAlignment="Right" d:LayoutOverrides="Height" Grid.Row="1" VerticalAlignment="Center" Margin="0,0,10,0" Width="100" Click="Click_Yes"/>
     		<Button Content="No" Grid.Column="1" HorizontalAlignment="Left" d:LayoutOverrides="Height" Grid.Row="1" VerticalAlignment="Center" Margin="10,0,0,0" Width="100" Click="Click_No"/>
     	</Grid>
     </Border>
 
-    
-    
-    
-    
+    <Border x:Name="QueryUserIdleModal" BorderThickness="1" Background="White" VerticalAlignment="Center" Margin="1,0" Visibility="Hidden" Padding="0,10" Height="170">
+      <Controls:TransitioningContentControl 
+        x:Name="IdleQueryTransionContentControl" 
+        HorizontalAlignment="Center" 
+        VerticalAlignment="Stretch"
+        VerticalContentAlignment="Center"
+        Transition="RightTransition"
+        />
+    </Border>
+
+
+
     <!--ContentTemplate="{DynamicResource LogViewModelDataTemplate}"-->
 
     <!--<ContentPresenter Content="{Binding}"/>-->

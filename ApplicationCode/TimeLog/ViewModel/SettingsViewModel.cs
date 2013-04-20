@@ -18,6 +18,7 @@ namespace TimeLog.ViewModel
     private string _LogFolder;
     private DateTime _WorkdayStart;
     private bool _UseDarkTheme;
+    private bool _QueryWhenIdle;
     private Color _AccentColor;
 
 
@@ -34,6 +35,21 @@ namespace TimeLog.ViewModel
         NotifyPropertyChanged("WorkdayStart");
       }
     }
+
+    [DataMember]
+    public bool QueryWhenIdle
+    {
+      get
+      {
+        return this._QueryWhenIdle;
+      }
+      set
+      {
+        this._QueryWhenIdle = value;
+        NotifyPropertyChanged("QueryWhenIdle");
+      }
+    }
+
 
     [DataMember]
     public bool UseDarkTheme
@@ -92,6 +108,7 @@ namespace TimeLog.ViewModel
       this.UseDarkTheme = true;
       this.WorkdayStart = DateTime.Now.Date.AddHours(8);
       this.LogFolder = ".";
+      this.QueryWhenIdle = true;
     }
 
 

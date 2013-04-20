@@ -163,6 +163,17 @@ namespace TimeLog.ViewModel
 
 
 
+    public void AddEntry(TimeEntryViewModel entry)
+    {
+      this.TimeEntries.Add(entry);
+
+      WriteToFileAsync();
+
+      RefreshCurrentEntry();
+    }
+
+
+
     private void AddEntryCommand_Execute()
     {
       if (this.CurrentAddMethod == AddMethods.SinceLastEntry)
@@ -174,10 +185,11 @@ namespace TimeLog.ViewModel
         }
       }
 
-      this.TimeEntries.Add(this.CurrentEntry);
-      WriteToFileAsync();
+      //this.TimeEntries.Add(this.CurrentEntry);
+      //WriteToFileAsync();
 
-      RefreshCurrentEntry();
+      //RefreshCurrentEntry();
+      AddEntry(this.CurrentEntry);
     }
 
 

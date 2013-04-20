@@ -89,6 +89,7 @@
     </Compile>
     <Compile Include="UIThread.cs" />
     <Compile Include="ViewModel\Extensions.cs" />
+    <Compile Include="ViewModel\IdleCounter.cs" />
     <Compile Include="ViewModel\LogListingViewModel.cs" />
     <Compile Include="ViewModel\LogViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
